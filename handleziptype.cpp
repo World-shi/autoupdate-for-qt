@@ -67,7 +67,7 @@ void HandleZipType::startRequest(const QUrl &requestedUrl)
     connect(reply, &QNetworkReply::finished, this, &HandleZipType::httpFinished);
     connect(reply, &QIODevice::readyRead, this, &HandleZipType::httpReadyRead);
 
-    connect(reply, &QNetworkReply::errorOccurred, this, &HandleZipType::httpError);
+    connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, &HandleZipType::httpError);
 
     connect(reply, &QNetworkReply::downloadProgress, this, &HandleZipType::networkReplyProgress);
     QEventLoop loop;
@@ -78,7 +78,7 @@ void HandleZipType::startRequest(const QUrl &requestedUrl)
 void HandleZipType::cancelDownload()
 {
     httpRequestAborted = true;
-    reply->abort();;
+    reply->abort();
 }
 
 void HandleZipType::httpFinished(){

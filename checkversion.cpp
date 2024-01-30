@@ -36,6 +36,7 @@ void CheckVersion::requestRemoteVersionFinished(QNetworkReply *reply){
     QJsonDocument jsonDoc(QJsonDocument::fromJson(rsdata.toUtf8(),&jsonParseError));
     if(QJsonParseError::NoError !=jsonParseError.error){
         emit sendMsg(tr("解析请求响应数据失败：%1").arg(jsonParseError.errorString()));
+        emit quitApp();
         return;
     }
     QJsonObject jsonObj = jsonDoc.object();
@@ -43,6 +44,7 @@ void CheckVersion::requestRemoteVersionFinished(QNetworkReply *reply){
     if(newVer<=sysVersion){
         //不更新
         emit sendMsg(tr("当前版本已经是最新版本"));
+        emit quitApp();
         return;
     }
     emit upgradeBtnStatus(1);
@@ -57,7 +59,7 @@ void CheckVersion::requestRemoteVersionFinished(QNetworkReply *reply){
     GlobalVal::fileList = fileList;
     GlobalVal::mainAppName = mainAppName;
 
-    QProcess::execute(tr("taskkill /im %1 /f").arg(GlobalVal::mainAppName));  //终止主程序进程
+    //QProcess::execute(tr("taskkill /im %1 /f").arg(GlobalVal::mainAppName));  //终止主程序进程
     //emit sendMsg(tr("正在中止进程：%1").arg(GlobalVal::mainAppName));
     emit sendMsg(tr("发现新版本：%1，是否开始更新？").arg(newVerStr));
 }

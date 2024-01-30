@@ -16,6 +16,7 @@ public:
     static int updateTtype;//更新类型：1更新指定文件，2以压缩包形式更新
     static QString mainAppName;//主程序名称，更新完毕后将启动主程序
     static int status;//更新状态，0:初始状态，1有更新，2更新中
+    static int autoupdate; // 0:自动更新 1:手动更新
 };
 
 #endif // GLOBALVAL_H

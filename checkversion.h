@@ -38,6 +38,7 @@ private slots:
 signals:
     void sendMsg(QString msg);
     void upgradeBtnStatus(int status);
+    void quitApp();
 
 };
 

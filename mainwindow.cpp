@@ -23,10 +23,13 @@ MainWindow::MainWindow(QWidget *parent)
     //设置内层QWidget的边框和背景颜色
     ui->inner_widget->setStyleSheet("QWidget#inner_widget{border:1px solid #FFFFFF;border-radius:7px;background-color:#FFFFFF;}");
 
-    QSettings *settings;
-    settings = new QSettings(QDir::currentPath() + "/update/setting.ini",QSettings::IniFormat);
-    QString upgradeRemoteUrl = settings->value("upgrade/url").toString();
-    QString appName = settings->value("app/name").toString();   //用于更新界面显示
+    //QSettings *settings;
+    //settings = new QSettings(QDir::currentPath() + "/update/setting.ini",QSettings::IniFormat);
+    //QString upgradeRemoteUrl = settings->value("upgrade/url","http://127.0.0.1/autoupdate/auto_update.json").toString();
+    //QString appName = settings->value("app/name","pdfIS").toString();   //用于更新界面显示
+    int verNum=0;
+    QString appName,upgradeRemoteUrl;
+    readAutoUpdateFile(verNum,appName, upgradeRemoteUrl);
     ui->label_main->setText(QString("<html><head/><body><p><span style=\"font-family:Microsoft YaHei; font-weight:Bold; color:#6b6b6b;\">%1更新程序</span></p></body></html>").arg(appName));
     ui->chkUpgradeBtn->setVisible(false);   //隐藏不必要的检测更新btn
     if(upgradeRemoteUrl.isEmpty()){
@@ -39,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
     cv = new CheckVersion(this->parent(),upgradeRemoteUrl);
     connect(cv,SIGNAL(sendMsg(QString)),this,SLOT(receiveMsgDateln(QString)));
     connect(cv,SIGNAL(upgradeBtnStatus(int)),this,SLOT(upgradeBtnReset(int)));
+    connect(cv,SIGNAL(quitApp()),this,SLOT(quitApp()));
     download = new Download(this->parent());
     connect(download,SIGNAL(sendMsg(QString)),this,SLOT(receiveMsgDateln(QString)));
     handleZip = new HandleZipType(this->parent());
@@ -92,6 +96,7 @@ void MainWindow::on_chkUpgradeBtn_clicked()
 
 void MainWindow::on_nowUpgradeBtn_clicked()
 {
+    QProcess::execute(tr("taskkill /im %1 /f").arg(GlobalVal::mainAppName));  //终止主程序进程
      this->upgradeBtnReset(2);
      int updateTtype = GlobalVal::updateTtype;
      QString programRootDir = GlobalVal::programRootDir;
@@ -261,3 +266,27 @@ void MainWindow::closeEvent(QCloseEvent *event)
 }
 */
 
+void MainWindow::quitApp()
+{
+    if (GlobalVal::autoupdate)
+        QTimer::singleShot(1, qApp, SLOT(quit()));
+}
+
+void MainWindow::readAutoUpdateFile(int& verNum, QString& appName, QString& upgradeUrl)
+{
+    QString configFilePath = QDir::currentPath() + "/update/update";
+    QFile readFile(configFilePath);
+    readFile.open(QIODevice::ReadOnly);
+    QDataStream out(&readFile);
+
+    if (QFile::exists(configFilePath))
+    {
+        out >> verNum >> appName >> upgradeUrl;
+    }
+    else
+    {
+        this->appendProgressMsg(tr("更新文件信息丢失！-- %1").arg(configFilePath));
+    }
+
+    readFile.close();
+}

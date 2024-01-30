@@ -62,7 +62,7 @@ void Download::startRequest(const QUrl &requestedUrl)
     connect(reply, &QNetworkReply::finished, this, &Download::httpFinished);
     connect(reply, &QIODevice::readyRead, this, &Download::httpReadyRead);
 
-    connect(reply, &QNetworkReply::errorOccurred, this, &Download::httpError);
+    connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, &Download::httpError);
 
     connect(reply, &QNetworkReply::downloadProgress, this, &Download::networkReplyProgress);
     QEventLoop loop;

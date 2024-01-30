@@ -45,6 +45,7 @@ private slots:
     void receiveMsgDate(QString msg);
     void receiveMsgDateln(QString msg);
     void upgradeBtnReset(int status);
+    void quitApp();
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *e) override;
@@ -58,5 +59,6 @@ private:
     void syncVersion();
     void startMainApp();
     void deleteDir(const QString& path);
+    void readAutoUpdateFile(int& verNum, QString& appName, QString& upgradeUrl);
 };
 #endif // MAINWINDOW_H

@@ -8,16 +8,20 @@
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setOrganizationName("update");
-    QCoreApplication::setOrganizationDomain("bytecho.net");
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    //QCoreApplication::setOrganizationName("update");
+    //QCoreApplication::setOrganizationDomain("bytecho.net");
+    //QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    //QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     //支持老显卡设置
 //    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 //    QGuiApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
 //    QCoreApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
 //    QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
     QApplication a(argc, argv);
+    if (argc > 1)
+    {
+        GlobalVal::autoupdate = atoi(argv[1]);
+    }
     a.setWindowIcon(QIcon(QStringLiteral("updateLogo")));
 //    QTextCodec::setCodecForLocale(QTextCodec::codecForLocale());
 //    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
@@ -51,7 +55,10 @@ int main(int argc, char *argv[])
     w.setFixedSize(w.width(),w.height());
     //隐藏最大化最小化按钮
     w.setWindowFlags(w.windowFlags() &~Qt::WindowMinMaxButtonsHint);
-    w.setWindowTitle(QObject::tr("WePlanet 更新程序"));
-    w.show();
+    w.setWindowTitle(QObject::tr("更新程序"));
+    if (GlobalVal::autoupdate)
+        w.hide();
+    else
+        w.show();
     return a.exec();
 }
