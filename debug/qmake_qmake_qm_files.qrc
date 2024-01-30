@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="i18n">
+<file alias="autoUpdater_zh_CN.qm">D:/SourceCode/HDS/autoupdate-for-qt/debug/autoUpdater_zh_CN.qm</file>
+<file alias="autoUpdater_en_US.qm">D:/SourceCode/HDS/autoupdate-for-qt/debug/autoUpdater_en_US.qm</file>
+</qresource>
+</RCC>
