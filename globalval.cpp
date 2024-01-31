@@ -4,7 +4,7 @@
 #pragma execution_character_set("utf-8")
 
 int GlobalVal::newVersion;
-QString  GlobalVal::programRootDir = QDir::currentPath();
+QString  GlobalVal::programRootDir = QCoreApplication::applicationDirPath();
 QString GlobalVal::zipurl = "";
 QJsonArray GlobalVal::fileList;
 int GlobalVal::updateTtype;

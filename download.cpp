@@ -32,7 +32,7 @@ void Download::downloadFile(QUrl newUrl,QString downloadDirectory)
 
     }
     if(downloadDirectory.isEmpty()){
-        downloadDirectory = QDir::currentPath();
+        downloadDirectory = QCoreApplication::applicationDirPath();
     }
     bool useDirectory = !downloadDirectory.isEmpty() && QFileInfo(downloadDirectory).isDir();
     if (useDirectory){
@@ -138,6 +138,8 @@ std::unique_ptr<QFile> Download::openFileForWrite(const QString &fileName)
 
 void Download::networkReplyProgress(qint64 bytesRead, qint64 totalBytes)
 {
+    if (bytesRead == 0 || totalBytes == 0)
+        return;
 
     QString totalstr;
     QString readstr;

@@ -58,6 +58,7 @@ private:
     QPoint clickPos;
     void syncVersion();
     void startMainApp();
+    void startUpgrade();
     void deleteDir(const QString& path);
     void readAutoUpdateFile(int& verNum, QString& appName, QString& upgradeUrl);
 };

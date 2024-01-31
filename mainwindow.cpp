@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(cv,SIGNAL(sendMsg(QString)),this,SLOT(receiveMsgDateln(QString)));
     connect(cv,SIGNAL(upgradeBtnStatus(int)),this,SLOT(upgradeBtnReset(int)));
     connect(cv,SIGNAL(quitApp()),this,SLOT(quitApp()));
+    connect(cv,SIGNAL(quitApp()),this,SLOT(quitApp()));
     download = new Download(this->parent());
     connect(download,SIGNAL(sendMsg(QString)),this,SLOT(receiveMsgDateln(QString)));
     handleZip = new HandleZipType(this->parent());
@@ -56,11 +57,11 @@ MainWindow::MainWindow(QWidget *parent)
         GlobalVal::programRootDir = QDir::currentPath();
     #endif*/
 
-    QDir programRootDir = QDir::currentPath();
+    GlobalVal::programRootDir = QCoreApplication::applicationDirPath();
     //programRootDir.cdUp(); //更新程序根目录的上级目录
-    deleteDir(QDir::currentPath() + "/update/");    //删除旧版本更新器文件
-    GlobalVal::programRootDir = programRootDir.path();    //此处定义主程序根目录
-    this->on_chkUpgradeBtn_clicked();
+    deleteDir(GlobalVal::programRootDir + "/update/");    //删除旧版本更新器文件
+    //GlobalVal::programRootDir = programRootDir.path();    //此处定义主程序根目录
+    QTimer::singleShot(5000, this, &MainWindow::on_chkUpgradeBtn_clicked);
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *e)
@@ -97,49 +98,57 @@ void MainWindow::on_chkUpgradeBtn_clicked()
 void MainWindow::on_nowUpgradeBtn_clicked()
 {
     QProcess::execute(tr("taskkill /im %1 /f").arg(GlobalVal::mainAppName));  //终止主程序进程
-     this->upgradeBtnReset(2);
-     int updateTtype = GlobalVal::updateTtype;
-     QString programRootDir = GlobalVal::programRootDir;
-     bool updateOK = false;
-     if(updateTtype==1){
-         QJsonArray fileList = GlobalVal::fileList;
-         for(int i =0;i<fileList.size();i++){
-             QJsonObject item = fileList[i].toObject();
-             QString path = item.value("path").toString();
-             QString downloadRootDir = programRootDir;
-             if(!path.isEmpty() && path!="/"){
+    this->appendProgressMsg(tr("正在关闭主程序'%1' ···").arg(GlobalVal::mainAppName));
+    QTimer::singleShot(3000, this, &MainWindow::startUpgrade);
+}
+
+void MainWindow::startUpgrade()
+{
+    this->upgradeBtnReset(2);
+    int updateTtype = GlobalVal::updateTtype;
+    QString programRootDir = GlobalVal::programRootDir;
+    bool updateOK = false;
+    if (updateTtype == 1) {
+        QJsonArray fileList = GlobalVal::fileList;
+        for (int i = 0; i < fileList.size(); i++) {
+            QJsonObject item = fileList[i].toObject();
+            QString path = item.value("path").toString();
+            QString downloadRootDir = programRootDir;
+            if (!path.isEmpty() && path != "/") {
                 downloadRootDir = programRootDir + "/" + path;
-             }
-             QJsonArray sublist = item.value("sublist").toArray();
-             for(int j =0;j<sublist.size();j++){
-                 QString fileUrl = sublist[j].toString();
-                 fileUrl = Download::urlEncode(fileUrl);
-                 QUrl url(fileUrl);
-                 if(url.fileName() == "updater.exe")
-                     continue;  //新版本更新程序忽略更新
-                 download->resetStatus();
-                 download->downloadFile(url,downloadRootDir);
-                 //this->syncVersion(); 由主程序更新版本文件
-                 this->appendProgressMsg(tr("更新完成^_^"));
-                 updateOK = true;
-             }
-         }
-     }else if(updateTtype==2){
-         QString zipurl = GlobalVal::zipurl;
-         if(!zipurl.isEmpty()){
+            }
+            QJsonArray sublist = item.value("sublist").toArray();
+            for (int j = 0; j < sublist.size(); j++) {
+                QString fileUrl = sublist[j].toString();
+                fileUrl = Download::urlEncode(fileUrl);
+                QUrl url(fileUrl);
+                if (url.fileName() == "updater.exe")
+                    continue;  //新版本更新程序忽略更新
+                download->resetStatus();
+                download->downloadFile(url, downloadRootDir);
+                //this->syncVersion(); 由主程序更新版本文件
+                this->appendProgressMsg(tr("更新完成^_^"));
+                updateOK = true;
+            }
+        }
+    }
+    else if (updateTtype == 2) {
+        QString zipurl = GlobalVal::zipurl;
+        if (!zipurl.isEmpty()) {
             QUrl url(zipurl);
             handleZip->downloadZip(url);
             //this->syncVersion(); 由主程序更新版本文件
             this->appendProgressMsg(tr("更新完成^_^"));
             updateOK = true;
-         }
-     }else{
-         this->appendProgressMsg(tr("[错误代码:500]参数校验失败..."));
-     }
-     //启动主程序
-    if(updateOK){
+        }
+    }
+    else {
+        this->appendProgressMsg(tr("[错误代码:500]参数校验失败..."));
+    }
+    //启动主程序
+    if (updateOK) {
         this->appendProgressMsg(tr("即将关闭更新程序，正在启动主程序..."));
-        QTimer::singleShot(1500,this,&MainWindow::startMainApp);
+        QTimer::singleShot(1500, this, &MainWindow::startMainApp);
         //this->startMainApp();
     }
 }
@@ -182,6 +191,7 @@ void MainWindow::upgradeBtnReset(int status){
         this->ui->nowUpgradeBtn->setEnabled(false);
         break;
     case 1:
+        this->showNormal();
         this->ui->chkUpgradeBtn->setEnabled(false);
         this->ui->nowUpgradeBtn->setEnabled(true);
         break;
@@ -206,7 +216,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
  */
 void MainWindow::syncVersion()
 {
-    QString configFilePath = QDir::currentPath()+"/version.dat";
+    QString configFilePath = QCoreApplication::applicationDirPath() +"/version.dat";
     configFilePath = QDir::toNativeSeparators(configFilePath);
     QFile writeFile(configFilePath);
     writeFile.open(QIODevice::WriteOnly);
@@ -230,7 +240,7 @@ void MainWindow::deleteDir(const QString &path)
 {
     QDir tmpDir(path);
     foreach(QFileInfo fileInfo, tmpDir.entryInfoList(QDir::Files))
-        if(fileInfo.fileName() != "version.dat" && fileInfo.fileName() != "setting.ini")
+        if(fileInfo.fileName() != "update" && fileInfo.fileName() != "setting.ini")
             tmpDir.remove(fileInfo.fileName());
     foreach(QString subDir, tmpDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
     {
@@ -274,7 +284,7 @@ void MainWindow::quitApp()
 
 void MainWindow::readAutoUpdateFile(int& verNum, QString& appName, QString& upgradeUrl)
 {
-    QString configFilePath = QDir::currentPath() + "/update/update";
+    QString configFilePath = QCoreApplication::applicationDirPath() + "/update/update";
     QFile readFile(configFilePath);
     readFile.open(QIODevice::ReadOnly);
     QDataStream out(&readFile);

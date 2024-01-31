@@ -61,7 +61,7 @@ void CheckVersion::requestRemoteVersionFinished(QNetworkReply *reply){
 
     //QProcess::execute(tr("taskkill /im %1 /f").arg(GlobalVal::mainAppName));  //终止主程序进程
     //emit sendMsg(tr("正在中止进程：%1").arg(GlobalVal::mainAppName));
-    emit sendMsg(tr("发现新版本：%1，是否开始更新？").arg(newVerStr));
+    emit sendMsg(tr("发现新版本：%1，更新将会关闭主程序，是否开始更新？").arg(newVerStr));
 }
 /**
  * 获取本地程序版本号，版本号为纯数字
@@ -70,7 +70,7 @@ void CheckVersion::requestRemoteVersionFinished(QNetworkReply *reply){
  */
 int CheckVersion::readSysVersion()
 {
-    QString configFilePath = QDir::currentPath()+"/update/version.dat";
+    QString configFilePath = QCoreApplication::applicationDirPath() +"/update/update";
     configFilePath = QDir::toNativeSeparators(configFilePath);
     QFile writeFile(configFilePath);
     writeFile.open(QIODevice::ReadOnly);

@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QJsonArray>
+#include <QApplication>
 
 #pragma execution_character_set("utf-8")
 

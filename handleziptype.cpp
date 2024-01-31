@@ -30,7 +30,7 @@ void HandleZipType::downloadZip(QUrl newUrl)
     emit sendMsg(tr("开始下载压缩包：%1").arg(fileName));
     QString downloadDirectory = QDir::tempPath();
     if(downloadDirectory.isEmpty()){
-        downloadDirectory = QDir::currentPath();
+        downloadDirectory = QCoreApplication::applicationDirPath();
     }
     QString currDate =  QDate::currentDate().toString("yyyyMMdd");
     downloadDirectory = downloadDirectory + "/autoUpdate-"+currDate;
