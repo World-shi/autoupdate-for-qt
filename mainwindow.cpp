@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     int verNum=0;
     QString appName,upgradeRemoteUrl;
     readAutoUpdateFile(verNum,appName, upgradeRemoteUrl);
-    ui->label_main->setText(QString("<html><head/><body><p><span style=\"font-family:Microsoft YaHei; font-weight:Bold; color:#6b6b6b;\">%1更新程序</span></p></body></html>").arg(appName));
+    ui->label_main->setText(QString("<html><head/><body><p><span style=\"font-family:Microsoft YaHei; font-weight:Bold; color:#FFA244;\">%1更新程序</span></p></body></html>").arg(appName));
     ui->chkUpgradeBtn->setVisible(false);   //隐藏不必要的检测更新btn
     if(upgradeRemoteUrl.isEmpty()){
         this->upgradeBtnReset(2);
