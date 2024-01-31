@@ -55,7 +55,7 @@ private:
      QString originFileName;
 
 private slots:
-    void startRequest(const QUrl &requestedUrl);
+    bool startRequest(const QUrl &requestedUrl);
     void cancelDownload();
     void httpFinished();
     void httpReadyRead();

@@ -3,6 +3,7 @@
 #include <QUrl>
 #include <QTextCodec>
 
+#define SUFFIX_DOWNLOAD ".dld"
 #pragma execution_character_set("utf-8")
 
 Download::Download(QObject *parent)
@@ -28,8 +29,10 @@ void Download::downloadFile(QUrl newUrl,QString downloadDirectory)
     QString fileName = newUrl.fileName();
     this->originFileName = fileName;
     emit sendMsg(tr("开始下载文件：%1").arg(fileName));
-    if (fileName.isEmpty()){
-
+    if (fileName.isEmpty()) {
+    }
+    else {
+        fileName += SUFFIX_DOWNLOAD;
     }
     if(downloadDirectory.isEmpty()){
         downloadDirectory = QCoreApplication::applicationDirPath();
@@ -48,10 +51,23 @@ void Download::downloadFile(QUrl newUrl,QString downloadDirectory)
         file = openFileForWrite(fileName);
     }
     // schedule the request
-    startRequest(newUrl);
+    bool downloadStatus = startRequest(newUrl);
+
+    QString oFile = QCoreApplication::applicationDirPath() + "/" + this->originFileName;
+    if (downloadStatus && QFile::exists(oFile)) {
+        QFile::remove(oFile);
+    }
+    if (QFile::rename(fileName, oFile))
+    {
+        emit sendMsg(tr("更新文件[%1]完成").arg(this->originFileName));
+    }
+    else
+    {
+        emit sendMsg(tr("更新文件[%1]失败，文件可能被占用").arg(this->originFileName));
+    }
 }
 
-void Download::startRequest(const QUrl &requestedUrl)
+bool Download::startRequest(const QUrl &requestedUrl)
 {
     url = requestedUrl;
     httpRequestAborted = false;
@@ -68,7 +84,12 @@ void Download::startRequest(const QUrl &requestedUrl)
     QEventLoop loop;
     connect(reply,&QNetworkReply::finished,&loop,&QEventLoop::quit);
     loop.exec();
-
+    if (reply)
+    {
+        return reply->isFinished();
+    }
+    
+    return true;
 }
 
 void Download::cancelDownload()
@@ -127,7 +148,6 @@ void Download::httpError(){
 
 std::unique_ptr<QFile> Download::openFileForWrite(const QString &fileName)
 {
-
     std::unique_ptr<QFile> file(new QFile(fileName));
     if (!file->open(QIODevice::WriteOnly)) {
         emit sendMsg(tr("错误信息：%1 ").arg(file->errorString()));
@@ -162,7 +182,7 @@ void Download::networkReplyProgress(qint64 bytesRead, qint64 totalBytes)
     QString thisProgres = readstr + "/" + totalstr;
     emit sendMsg(tr("文件[%1]下载进度：%2").arg(this->originFileName,thisProgres));
     if(bytesRead==totalBytes){
-       emit sendMsg(tr("文件[%1]下载完成").arg(this->originFileName));
+        emit sendMsg(tr("文件[%1]下载完成").arg(this->originFileName));
     }
 }
 

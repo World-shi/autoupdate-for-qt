@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     //样式修改
-    setWindowFlags(Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
+    setWindowFlags(Qt::WindowStaysOnTopHint |Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
     //内层窗口添加对应的阴影效果
     QGraphicsDropShadowEffect *shadow_effect = new QGraphicsDropShadowEffect(this);
