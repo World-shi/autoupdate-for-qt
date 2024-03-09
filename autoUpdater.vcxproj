@@ -223,7 +223,8 @@
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <Version>1.0</Version>
-      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <UACUIAccess>false</UACUIAccess>
+      <EnableUAC>true</EnableUAC>
     </Link>
     <Midl>
       <DefaultCharType>Unsigned</DefaultCharType>
