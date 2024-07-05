@@ -22,6 +22,9 @@ int main(int argc, char *argv[])
     {
         GlobalVal::autoupdate = atoi(argv[1]);
     }
+    if (GlobalVal::autoupdate != 1 && GlobalVal::autoupdate != 0)
+        return 1;
+
     a.setWindowIcon(QIcon(QStringLiteral("updateLogo")));
 //    QTextCodec::setCodecForLocale(QTextCodec::codecForLocale());
 //    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));

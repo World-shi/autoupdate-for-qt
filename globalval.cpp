@@ -14,4 +14,4 @@ QString GlobalVal::mainAppName = "";
  * @brief GlobalVal::status
  */
 int GlobalVal::status = 0;
-int GlobalVal::autoupdate = 0;
+int GlobalVal::autoupdate = -1;
